@@ -10,6 +10,7 @@ devtools::install_github("hrbrmstr/hrbrthemes")
 library(tidyverse)
 library(hrbrthemes)
 library(scales)
+library(ggrepel)
 
 bmrunners <- tibble::tribble(
                ~year, ~total_entrants, ~male_entrants, ~female_entrants, ~total_finishers, ~male_finishers, ~female_finishers,
@@ -59,7 +60,12 @@ bmrunners <- tibble::tribble(
                2015,        30251,    16500,      13751,      26598, 14580,      12018,
                2016,        30741,    16629,      14112,      26629, 14463,      12166,
                2017,        30074,    16376,      13698,      26400, 14431,      11969,
-               2018,        29978,    16587,      13391,      25746, 14142,      11604 )
+               2018,        29978,    16587,      13391,      25746, 14142,      11604 ) %>% 
+  mutate(male_percent_finish = male_finishers/male_entrants,
+         female_percent_finish = female_finishers/female_entrants)
+
+
+
 
 
 # initial plot
@@ -68,6 +74,7 @@ bmrunnersplot <- ggplot(bmrunners, aes(year)) +
   geom_line(aes(y = male_finishers, colour = "Male Finishers"), colour = "#2A5D46", linetype = 3) +
   geom_line(aes(y = female_entrants, colour = "Female Entrants"), colour = "#A9F062") +
   geom_line(aes(y = female_finishers, colour = "Female Finishers"), colour = "#A9F062", linetype = 3) +
+  #geom_vline(xintercept = 1996, colour = "black", linetype = 2) +
   scale_y_continuous(labels = comma) +
   labs(title = "Boston Marathon Entries & Finishers",
        subtitle = "1972 - 2018",
@@ -77,3 +84,17 @@ bmrunnersplot <- ggplot(bmrunners, aes(year)) +
   theme_ipsum()
 
 ggsave("bmrunnersplotv1.tiff", width = 13.33, height = 7.5, units = "in" )
+
+bmfinishpercentplot <- ggplot(bmrunners, aes(year)) +
+  geom_point(aes(y = male_percent_finish), colour = "#2A5D46") +
+  geom_point(aes(y = female_percent_finish), colour = "#A9F062") +
+  #geom_vline(xintercept = 1996, colour = "black", linetype = 2) +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Boston Marathon Entries & Finishers",
+       subtitle = "Percent of total entries that finish; 1972 - 2018",
+       x = "Year",
+       y = "Finisher Percent",
+       caption = "1972 was the first year of official participation by women.") +
+  theme_ipsum()
+
+ggsave("bmfinishpercentplot.tiff", width = 13.33, height = 7.5, units = "in" )
